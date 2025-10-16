@@ -1,1 +1,614 @@
-# Gesti-tickets2
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestió de Tickets de Suport</title>
+    <style>
+        :root {
+            --primary-red: #e5222f;
+            --light-gray: #f4f4f4;
+            --medium-gray: #ddd;
+            --dark-gray: #333;
+            --white: #fff;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-gray);
+            color: var(--dark-gray);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: var(--white);
+            padding: 1rem 0;
+            border-bottom: 3px solid var(--primary-red);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        header h1 {
+            margin: 0;
+            color: var(--dark-gray);
+        }
+
+        main section {
+            background-color: var(--white);
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: var(--primary-red);
+            border-bottom: 2px solid var(--light-gray);
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+
+        /* Formulario */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--medium-gray);
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-red);
+            color: var(--white);
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-decoration: none;
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #c41a25;
+        }
+
+        /* Tabla de Tickets */
+        .ticket-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .ticket-table th,
+        .ticket-table td {
+            padding: 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid var(--medium-gray);
+        }
+
+        .ticket-table thead {
+            background-color: var(--dark-gray);
+            color: var(--white);
+        }
+        
+        .ticket-table thead th {
+            border-bottom: 2px solid var(--primary-red);
+        }
+
+        .ticket-table tbody tr:nth-child(even) {
+            background-color: var(--light-gray);
+        }
+
+        .ticket-table tbody tr:hover {
+            background-color: #e9e9e9;
+        }
+
+        .status {
+            padding: 0.3rem 0.6rem;
+            border-radius: 12px;
+            color: var(--white);
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .status-open { background-color: #28a745; }
+        .status-progress { background-color: #ffc107; color: var(--dark-gray); }
+        .status-closed { background-color: #6c757d; }
+
+        footer {
+            text-align: center;
+            padding: 1rem 0;
+            margin-top: 2rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 style="display:inline-block;">Sistema de Gestió de Tickets</h1>
+        <a href="admin_login.html" class="btn" style="float:right; margin-top:8px;">Iniciar sesión</a>
+    </header>
+
+    <div class="container">
+        <main>
+            <!-- Sección para crear un nuevo ticket -->
+            <section id="nuevo-ticket">
+                <h2>Crear Nou Ticket</h2>
+                <form id="ticket-form">
+                    <div class="form-group">
+                        <label for="nombre">Nom</label>
+                        <input type="text" id="nombre" name="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="asunto">Asumpte</label>
+                        <input type="text" id="asunto" name="asunto" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="prioridad">Prioritat</label>
+                        <select id="prioridad" name="prioridad">
+                            <option value="baja">Baixa</option>
+                            <option value="media" selected>Mitja</option>
+                            <option value="alta">Alta</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="descripcion">Descripció</label>
+                        <textarea id="descripcion" name="descripcion" required></textarea>
+                    </div>
+                    <button type="submit" class="btn">Enviar Ticket</button>
+                </form>
+            </section>
+
+            <!-- Sección de tickets abiertos -->
+            <section id="tickets-abiertos">
+                <h2>Tickets Oberts</h2>
+                <table class="ticket-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Asumpte</th>
+                            <th>Usuari</th>
+                            <th>Data</th>
+                            <th>edu-assignments-data-provider</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Sección de tickets cerrados -->
+            <section id="tickets-cerrados">
+                <h2>Tickets Cerrados</h2>
+                <table class="ticket-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Asunto</th>
+                            <th>Usuario</th>
+                            <th>Fecha Cierre</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Panel de administración -->
+            <section id="admin-panel">
+                <h2>Panel Administrador</h2>
+                <div id="admin-login">
+                    <div class="form-group">
+                        <label for="admin-user">Usuario</label>
+                        <input type="text" id="admin-user" value="admin">
+                    </div>
+                    <div class="form-group">
+                        <label for="admin-pass">Contraseña</label>
+                        <input type="password" id="admin-pass" value="admin1234">
+                    </div>
+                    <button id="admin-login-btn" class="btn">Entrar como admin</button>
+                    <button id="admin-logout-btn" class="btn" style="display:none; margin-left:8px;">Cerrar sesión</button>
+                </div>
+
+                <div id="admin-actions" style="margin-top:1rem; display:none;">
+                    <p>Sesión admin activa. Aquí puedes ver y gestionar todos los tickets.</p>
+                    <div style="margin-bottom:8px;">
+                        <button id="admin-refresh-btn" class="btn">Refrescar tickets</button>
+                        <span id="admin-error" style="color:#b00; margin-left:12px;"></span>
+                    </div>
+                    <table class="ticket-table" id="admin-ticket-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Asunto</th>
+                                <th>Usuario</th>
+                                <th>Fecha</th>
+                                <th>Prioridad</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 Helpdesk Minimalista. Todos los derechos reservados.</p>
+    </footer>
+
+   <script>
+(function () {
+    // Configuración de Microsoft Lists
+    const SITE_ID = 'tu-site-id'; // Reemplazar con tu Site ID
+    const LIST_ID = 'tu-list-id'; // Reemplazar con tu List ID
+    const API_BASE = '/api'; // Base URL de tu API
+
+    // Estado de autenticación admin
+    function isAdminLoggedIn() { 
+        return localStorage.getItem('admin_logged_in') === 'true'; 
+    }
+    
+    function setAdminLoggedIn(status) { 
+        if (status) {
+            localStorage.setItem('admin_logged_in', 'true');
+        } else {
+            localStorage.removeItem('admin_logged_in');
+        }
+    }
+
+    // Utilidades
+    function escapeHtml(unsafe) { 
+        return String(unsafe).replace(/[&<>"']/g, function (m) { 
+            return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[m]; 
+        }); 
+    }
+
+    function statusClass(estado) { 
+        if (!estado) return ''; 
+        if (estado === 'Abierto') return 'status-open'; 
+        if (estado === 'En Progreso') return 'status-progress'; 
+        if (estado === 'Cerrado') return 'status-closed'; 
+        return ''; 
+    }
+
+    function formatDate(dateString) {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('es-ES') + ' ' + date.toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
+    }
+
+    // ========== FUNCIONES PARA MICROSOFT LISTS ==========
+
+    // Crear nuevo ticket
+    async function createTicket(ticketData) {
+        try {
+            const response = await fetch(API_BASE + '/tickets', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(ticketData)
+            });
+            
+            if (!response.ok) throw new Error('Error creando ticket');
+            return await response.json();
+        } catch (error) {
+            console.error('Error:', error);
+            throw error;
+        }
+    }
+
+    // Obtener todos los tickets (público)
+    async function getPublicTickets() {
+        try {
+            const response = await fetch(API_BASE + '/tickets');
+            if (!response.ok) throw new Error('Error obteniendo tickets');
+            return await response.json();
+        } catch (error) {
+            console.error('Error:', error);
+            return [];
+        }
+    }
+
+    // Obtener tickets para admin
+    async function getAdminTickets() {
+        try {
+            const response = await fetch(API_BASE + '/tickets');
+            if (!response.ok) throw new Error('Error obteniendo tickets admin');
+            return await response.json();
+        } catch (error) {
+            console.error('Error:', error);
+            return [];
+        }
+    }
+
+    // Actualizar ticket
+    async function updateTicket(id, updateData) {
+        try {
+            const response = await fetch(API_BASE + '/tickets/' + id, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updateData)
+            });
+            
+            if (!response.ok) throw new Error('Error actualizando ticket');
+            return await response.json();
+        } catch (error) {
+            console.error('Error:', error);
+            throw error;
+        }
+    }
+
+    // ========== FUNCIONALIDAD PÚBLICA ==========
+
+    // Cargar tickets públicos
+    async function loadPublicTickets() {
+        try {
+            const tickets = await getPublicTickets();
+            const openTbody = document.querySelector('#tickets-abiertos .ticket-table tbody');
+            const closedTbody = document.querySelector('#tickets-cerrados .ticket-table tbody');
+            
+            if (!openTbody || !closedTbody) return;
+
+            // Limpiar tablas
+            openTbody.innerHTML = '';
+            closedTbody.innerHTML = '';
+
+            // Separar tickets abiertos y cerrados
+            const openTickets = tickets.filter(t => t.estado !== 'Cerrado');
+            const closedTickets = tickets.filter(t => t.estado === 'Cerrado');
+
+            // Renderizar tickets abiertos
+            openTickets.slice().reverse().forEach(ticket => {
+                renderPublicTicket(ticket, openTbody, false);
+            });
+
+            // Renderizar tickets cerrados
+            closedTickets.slice().reverse().forEach(ticket => {
+                renderPublicTicket(ticket, closedTbody, true);
+            });
+
+        } catch (error) {
+            console.error('Error cargando tickets públicos:', error);
+        }
+    }
+
+    function renderPublicTicket(ticket, tbody, isClosed) {
+        const tr = document.createElement('tr');
+        const fecha = isClosed ? 
+            (ticket.fechaCierre ? formatDate(ticket.fechaCierre) : formatDate(ticket.fecha)) : 
+            formatDate(ticket.fecha);
+        
+        tr.innerHTML = `
+            <td>${escapeHtml(ticket.id || '')}</td>
+            <td>${escapeHtml(ticket.asunto || '')}</td>
+            <td>${escapeHtml(ticket.nombre || '')}</td>
+            <td>${escapeHtml(fecha)}</td>
+            <td><span class="status ${statusClass(ticket.estado)}">${escapeHtml(ticket.estado || 'Abierto')}</span></td>
+        `;
+        tbody.appendChild(tr);
+    }
+
+    // Crear ticket desde formulario
+    document.getElementById('ticket-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const form = e.target;
+        
+        const ticketData = {
+            nombre: (form.nombre.value || '').trim(),
+            email: (form.email.value || '').trim(),
+            asunto: (form.asunto.value || '').trim(),
+            prioridad: (form.prioridad.value || 'media'),
+            descripcion: (form.descripcion.value || '').trim(),
+            estado: 'Abierto',
+            fecha: new Date().toISOString()
+        };
+
+        // Validación
+        if (!ticketData.nombre || !ticketData.email || !ticketData.asunto || !ticketData.descripcion) {
+            return alert('Por favor, completa todos los campos requeridos');
+        }
+
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Creando...';
+        submitBtn.disabled = true;
+
+        try {
+            await createTicket(ticketData);
+            form.reset();
+            await loadPublicTickets(); // Recargar la lista
+            alert('Ticket creado exitosamente');
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al crear el ticket. Por favor, intenta nuevamente.');
+        } finally {
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
+    });
+
+    // ========== FUNCIONALIDAD ADMIN ==========
+
+    const loginBtn = document.getElementById('admin-login-btn');
+    const logoutBtn = document.getElementById('admin-logout-btn');
+    const adminActions = document.getElementById('admin-actions');
+    const adminLoginDiv = document.getElementById('admin-login');
+    const adminTableBody = document.querySelector('#admin-ticket-table tbody');
+    const adminErrorSpan = document.getElementById('admin-error');
+    const adminRefreshBtn = document.getElementById('admin-refresh-btn');
+
+    // Login admin
+    loginBtn.addEventListener('click', () => {
+        const user = document.getElementById('admin-user').value;
+        const pass = document.getElementById('admin-pass').value;
+
+        if (user === 'admin' && pass === 'admin1234') {
+            setAdminLoggedIn(true);
+            onAdminLoggedIn();
+            loadAdminTickets();
+            adminErrorSpan.textContent = '';
+        } else {
+            adminErrorSpan.textContent = 'Credenciales inválidas';
+        }
+    });
+
+    // Logout admin
+    logoutBtn.addEventListener('click', () => {
+        setAdminLoggedIn(false);
+        onAdminLoggedOut();
+    });
+
+    // Refresh tickets admin
+    if (adminRefreshBtn) {
+        adminRefreshBtn.addEventListener('click', async () => {
+            adminErrorSpan.textContent = '';
+            try {
+                await loadAdminTickets();
+            } catch (e) {
+                adminErrorSpan.textContent = 'Error al cargar tickets';
+            }
+        });
+    }
+
+    function onAdminLoggedIn() {
+        adminLoginDiv.style.display = 'none';
+        logoutBtn.style.display = 'inline-block';
+        adminActions.style.display = 'block';
+    }
+
+    function onAdminLoggedOut() {
+        adminLoginDiv.style.display = '';
+        logoutBtn.style.display = 'none';
+        adminActions.style.display = 'none';
+        if (adminTableBody) adminTableBody.innerHTML = '';
+    }
+
+    // Cargar tickets para admin
+    async function loadAdminTickets() {
+        if (!isAdminLoggedIn()) return;
+
+        try {
+            const tickets = await getAdminTickets();
+            renderAdminTickets(tickets);
+        } catch (error) {
+            console.error('Error cargando tickets admin:', error);
+            alert('Error al cargar tickets de administrador');
+        }
+    }
+
+    function renderAdminTickets(tickets) {
+        if (!adminTableBody) return;
+        adminTableBody.innerHTML = '';
+
+        tickets.slice().reverse().forEach(ticket => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${escapeHtml(ticket.id || '')}</td>
+                <td>${escapeHtml(ticket.asunto || '')}</td>
+                <td>${escapeHtml(ticket.nombre || '')}</td>
+                <td>${escapeHtml(formatDate(ticket.fecha))}</td>
+                <td>${escapeHtml(ticket.prioridad || 'media')}</td>
+                <td><span class="status ${statusClass(ticket.estado)}">${escapeHtml(ticket.estado || 'Abierto')}</span></td>
+                <td>
+                    <select data-id="${escapeHtml(ticket.id)}" class="status-select">
+                        <option value="Abierto" ${ticket.estado==='Abierto'?'selected':''}>Abierto</option>
+                        <option value="En Progreso" ${ticket.estado==='En Progreso'?'selected':''}>En Progreso</option>
+                        <option value="Cerrado" ${ticket.estado==='Cerrado'?'selected':''}>Cerrado</option>
+                    </select>
+                    <input placeholder="Asignar a" data-assign-id="${escapeHtml(ticket.id)}" value="${escapeHtml(ticket.asignado_a || '')}" style="margin-left:6px;" />
+                    <button class="btn update-ticket" data-id="${escapeHtml(ticket.id)}" style="margin-top:4px;">Guardar</button>
+                </td>
+            `;
+            adminTableBody.appendChild(tr);
+        });
+
+        // Event listeners para actualizar tickets
+        document.querySelectorAll('.update-ticket').forEach(btn => {
+            btn.addEventListener('click', async function () {
+                const id = this.getAttribute('data-id');
+                const statusSelect = document.querySelector(`select[data-id="${id}"]`);
+                const assignInput = document.querySelector(`input[data-assign-id="${id}"]`);
+                
+                const updateData = {
+                    estado: statusSelect ? statusSelect.value : null,
+                    asignado_a: assignInput ? assignInput.value.trim() || null : null
+                };
+
+                if (updateData.estado === 'Cerrado') {
+                    updateData.fechaCierre = new Date().toISOString();
+                }
+
+                const originalText = this.textContent;
+                this.textContent = 'Guardando...';
+                this.disabled = true;
+
+                try {
+                    await updateTicket(id, updateData);
+                    await loadAdminTickets();
+                    await loadPublicTickets(); // Actualizar vista pública también
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error al actualizar el ticket');
+                } finally {
+                    this.textContent = originalText;
+                    this.disabled = false;
+                }
+            });
+        });
+    }
+
+    // ========== INICIALIZACIÓN ==========
+
+    // Verificar si admin está logueado al cargar la página
+    if (isAdminLoggedIn()) {
+        onAdminLoggedIn();
+    }
+
+    // Cargar tickets públicos al inicio
+    loadPublicTickets();
+
+    // Si admin está logueado, cargar también los tickets de admin
+    if (isAdminLoggedIn()) {
+        loadAdminTickets();
+    }
+
+})();
+</script>
