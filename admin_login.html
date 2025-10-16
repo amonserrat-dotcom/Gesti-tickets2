@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Login Administrador</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background:#f4f4f4; color:#333; }
+    .card { max-width:420px; margin:80px auto; background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+    .form-group { margin-bottom:12px; }
+    label { display:block; font-weight:700; margin-bottom:6px; }
+    input[type=text], input[type=password] { width:100%; padding:8px; border:1px solid #ddd; border-radius:4px; }
+    .btn { background:#e5222f; color:#fff; padding:10px 14px; border:none; border-radius:4px; cursor:pointer; }
+    .btn:disabled { opacity:0.6; cursor:default; }
+    .small { font-size:0.9rem; color:#666; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Login Administrador</h2>
+    <div class="form-group">
+      <label for="user">Usuario</label>
+      <input id="user" type="text" value="admin">
+    </div>
+    <div class="form-group">
+      <label for="pass">Contraseña</label>
+      <input id="pass" type="password" value="admin1234">
+    </div>
+    <div class="form-group">
+      <button id="loginBtn" class="btn">Entrar</button>
+      <a href="helpdesk.html" style="margin-left:8px;" class="small">Volver</a>
+    </div>
+    <div id="msg" class="small" style="color:#b00"></div>
+  </div>
+
+  <script>
+    document.getElementById('loginBtn').addEventListener('click', () => {
+      const u = document.getElementById('user').value;
+      const p = document.getElementById('pass').value;
+      const btn = document.getElementById('loginBtn');
+      const msg = document.getElementById('msg');
+      btn.disabled = true; 
+      msg.textContent = '';
+
+      // Validación simple de credenciales
+      if (u === 'admin' && p === 'admin1234') {
+        localStorage.setItem('admin_logged_in', 'true');
+        localStorage.setItem('admin_user', u);
+        // Redirigir a la página principal
+        location.href = 'helpdesk.html';
+      } else {
+        msg.textContent = 'Credenciales inválidas';
+        btn.disabled = false;
+      }
+    });
+
+    // Enter key support
+    document.getElementById('pass').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        document.getElementById('loginBtn').click();
+      }
+    });
+  </script>
+</body>
+</html>
